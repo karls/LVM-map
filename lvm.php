@@ -4,7 +4,7 @@
 	//$fp = fopen('latlong_coords_json', 'r');
 	//$data = fread($fp, filesize('latlong_coords_json'));
 	$data = file_get_contents('final_obj_data_json');
-	$object_types = file_get_contents('object_types_json');
+	//$object_types = file_get_contents('object_types_json');
 	//$xml_file = "est.xml";
 	//$xml_data = file_get_contents($xml_file);
 	//$xml = new SimpleXMLElement($xml_data);
@@ -55,9 +55,20 @@
 				src="http://maps.google.com/maps/api/js?sensor=false">
 </script>
 <script type="text/javascript">
+		var markers = new Array(
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array(),
+			new Array()
+		);
   function initialize() {
 		var geocode_results = <?php echo $data; ?>;
-		var object_types = <?php echo $object_types; ?>;
 		var cntr = new google.maps.LatLng(
 			58.386131,
 			24.498632
@@ -73,7 +84,6 @@
 			myOptions
 		);
 		var i;
-		var markers = new Array();
 		var latlng;
 		var marker;
 		var infowindow = null;
@@ -83,40 +93,88 @@
 		infowindow = new google.maps.InfoWindow({
 			content: ""
 		});
-		
 		for (i = 0; i < geocode_results.length; i++)
 		{
-			if (parseInt(geocode_results[i][1].object_type) == 1)
+			for (j = 0; j < geocode_results[i].length; j++)
 			{
 				marker = null;
 				latlng = null;
 				latlng = new google.maps.LatLng(
-					geocode_results[i][2][0],
-					geocode_results[i][2][1]
+					geocode_results[i][j][2][0],
+					geocode_results[i][j][2][1]
 				);
 				
-				markers[i] = new google.maps.Marker({
+				markers[i][j] = new google.maps.Marker({
 					position: latlng,
-					title: geocode_results[i][0],
+					title: geocode_results[i][j][0],
 					map: map,
-					obj_info: 
-					"Link: <a href=\"http://city24.ee/kinnisvara/korter/"+geocode_results[i][0]+"\">korter</a>\n"+geocode_results[i][1].house_no+" "+geocode_results[i][1].street+" "+geocode_results[i][1].city+"<br>"
-					+ object_types[parseInt(geocode_results[i][1].object_type)]
+					obj_info: geocode_results[i][j][1].additional_info
 				});
-			
-				marker = markers[i];
+				
+				marker = markers[i][j];
 				google.maps.event.addListener(marker, 'click', function() {
 					infowindow.setContent(this.obj_info);
 					infowindow.open(map, this);
 				});
-			}
+			}// for
 		}// for
 	}// initialize
 
+	function process(box)
+	{
+		if (box.checked)
+			for (i = 0; i < markers[box.value].length; i++)
+				markers[box.value][i].setVisible(true);
+		else
+			for (i = 0; i < markers[box.value].length; i++)
+				markers[box.value][i].setVisible(false);
+	}
+	
+	function setAll(property)
+	{
+		for (i = 0; i < property.length; i++)
+			property[i].checked = true;
+		
+		for (i = 0; i < markers.length; i++)
+		{
+			for (j = 0; j < markers[i].length; j++)
+				markers[i][j].setVisible(true);
+		}
+	}
+	function clearAll(property)
+	{
+		for (i = 0; i < property.length; i++)
+			property[i].checked = false;
+		
+		for (i = 0; i < markers.length; i++)
+		{
+			for (j = 0; j < markers[i].length; j++)
+				markers[i][j].setVisible(false);
+		}
+	}
 </script>
 </head>
 
 <body onload="initialize()">
-  <div id="map_canvas" style="width:50%; height:50%"></div>
+  <div id="map_canvas" style="float: left; width:75%; height:75%"></div>
+	<div id="menu" style="float: left;">
+		<form name="properties" action="">
+		
+		<input type=checkbox name="property" value="0" onclick="process(this)" checked="checked">1-toalised<br>
+		<input type=checkbox name="property" value="1" onclick="process(this)" checked="checked">2-toalised<br>
+		<input type=checkbox name="property" value="2" onclick="process(this)" checked="checked">3-toalised<br>
+		<input type=checkbox name="property" value="3" onclick="process(this)" checked="checked">4-ja-enamatoalised<br>
+		<input type=checkbox name="property" value="4" onclick="process(this)" checked="checked">Äripinnad<br>
+		<input type=checkbox name="property" value="5" onclick="process(this)" checked="checked">Garaažid<br>
+		<input type=checkbox name="property" value="6" onclick="process(this)" checked="checked">Suvilad<br>
+		<input type=checkbox name="property" value="7" onclick="process(this)" checked="checked">Majad<br>
+		<input type=checkbox name="property" value="8" onclick="process(this)" checked="checked">Majaosad<br>
+		<input type=checkbox name="property" value="9" onclick="process(this)" checked="checked">Maad<br>
+		
+		<input type=button name="set" onclick="setAll(document.properties.property)" value="Sea kõik"><br>
+		<input type=button name="clear" onclick="clearAll(document.properties.property)" value="Puhasta kõik"><br>
+		
+		</form>
+	</div>
 </body>
 </html>
