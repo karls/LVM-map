@@ -15,12 +15,12 @@
 	$xml_data = file_get_contents($xml_file);
 	
 	preg_match_all("#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i", $xml_data, $tmp_objs);
-	$json_object_types = json_encode($tmp_objs[1]);
-	echo $json_object_types;
-	$fp = fopen('object_types_json', 'w');
-	fwrite($fp, $json_object_types);
-	fclose($fp);
-	unset($fp);
+	print_r($tmp_objs);
+	//$json_object_types = json_encode($tmp_objs[1]);
+	//$fp = fopen('object_types_json', 'w');
+	//fwrite($fp, $json_object_types);
+	//fclose($fp);
+	//unset($fp);
 	
 	$object_types = array();
 	/**
@@ -46,16 +46,13 @@
 		$obj_type = trim($rowset->OBJECTTYPE);
 		foreach ($rowset->ROW as $row)
 		{
-			if ($obj_type == "Korter")
-			{
-				
-			}// if
 			// let's build a string to represent the address of a property
 			$x = $row->COORDINATE_X;
 			$y = $row->COORDINATE_Y;
 			// the $y . "5" is essentially a hack, since the data from
 			// city24 is weird -- the Y coordinate comes as a number with one digit
 			// less than needed (the last digit - 10m precision). weird stuff anyways.
+			
 			if ($x != '' && $y != '')
 			{
 				$coords = $row->ID." ".$y."5 ".$x." 0\r\n";
@@ -67,8 +64,9 @@
 						"city"        => "$row->LINN",
 						"street"      => "$row->TANAV",
 						"house_no"    => "$row->MAJANR",
-						"object_type" => "$object_types[$obj_type]",
-						"num_rooms"   => "$row->KIRJELDUS_TOAD"
+						"object_type" => $object_types[$obj_type],
+						"num_rooms"   => intval(empty($row->KIRJELDUS_TOAD) ? "-1" : "$row->KIRJELDUS_TOAD"),
+						"additional_info" => "$row->LISAINFO_INFO"
 					),
 					array()
 				));
@@ -162,7 +160,38 @@
 		           //preg_replace($pattern, $replacement, $long));
 		$i++;
 	}
-	$final_data = json_encode($properties);
+	
+	$final_data = array(
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+		array(),
+	);
+	
+	foreach($properties as $object)
+	{
+		// the object is an apartment
+		if ($object[1]["object_type"] == 0)
+		{
+			if ($object[1]["num_rooms"] < 4)
+				array_push($final_data[$object[1]["num_rooms"] - 1], $object);
+			else
+				array_push($final_data[3], $object);
+		}
+		else
+			array_push($final_data[$object[1]["object_type"] + 3], $object);
+	}
+	
+	
+	
+	//$final_data = json_encode($properties);
+	$final_data = json_encode($final_data);
 	$fp = fopen('final_obj_data_json', 'w');
 	fwrite($fp, $final_data);
 	fclose($fp);
