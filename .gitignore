@@ -2,3 +2,5 @@ final_obj_data_json
 test.php
 coords_dump
 latlong_coords
+*.xml
+*.bak*
