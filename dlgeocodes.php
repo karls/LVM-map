@@ -15,7 +15,7 @@
 	$xml_data = file_get_contents($xml_file);
 	
 	preg_match_all("#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i", $xml_data, $tmp_objs);
-	print_r($tmp_objs);
+	//print_r($tmp_objs);
 	//$json_object_types = json_encode($tmp_objs[1]);
 	//$fp = fopen('object_types_json', 'w');
 	//fwrite($fp, $json_object_types);

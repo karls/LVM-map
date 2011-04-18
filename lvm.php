@@ -54,19 +54,34 @@
 <script type="text/javascript"
 				src="http://maps.google.com/maps/api/js?sensor=false">
 </script>
+<script type="text/javascript" src="markerclusterer_packed.js"></script>
 <script type="text/javascript">
-		var markers = new Array(
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array(),
-			new Array()
-		);
+		//var markers = new Array(
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array(),
+		//	new Array()
+		//);
+		var markers = [
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+			[],
+		];
+		var markers_clustered = [];
+		var infowindow = null;
   function initialize() {
 		var geocode_results = <?php echo $data; ?>;
 		var cntr = new google.maps.LatLng(
@@ -86,38 +101,43 @@
 		var i;
 		var latlng;
 		var marker;
-		var infowindow = null;
-		
-		infowindow = null;
-		
+		var markerImage;
 		infowindow = new google.maps.InfoWindow({
 			content: ""
 		});
 		for (i = 0; i < geocode_results.length; i++)
 		{
+			markerImage = new google.maps.MarkerImage(
+				"markers/" + i + ".png",
+				null,
+				null,
+				new google.maps.Point(0, 23)
+			);
 			for (j = 0; j < geocode_results[i].length; j++)
 			{
-				marker = null;
 				latlng = null;
 				latlng = new google.maps.LatLng(
 					geocode_results[i][j][2][0],
 					geocode_results[i][j][2][1]
 				);
-				
-				markers[i][j] = new google.maps.Marker({
+				marker = new google.maps.Marker({
 					position: latlng,
 					title: geocode_results[i][j][0],
 					map: map,
-					obj_info: geocode_results[i][j][1].additional_info
+					obj_info: geocode_results[i][j][1].additional_info,
+					icon: markerImage
 				});
 				
-				marker = markers[i][j];
+				markers[i].push(marker);
+				markers_clustered.push(marker);
 				google.maps.event.addListener(marker, 'click', function() {
 					infowindow.setContent(this.obj_info);
 					infowindow.open(map, this);
 				});
 			}// for
 		}// for
+		var mcOpts = {gridSize: 30, maxZoom: 13};
+		new MarkerClusterer(map, markers_clustered, mcOpts);
 	}// initialize
 
 	function process(box)
@@ -156,20 +176,20 @@
 </head>
 
 <body onload="initialize()">
-  <div id="map_canvas" style="float: left; width:75%; height:75%"></div>
+  <div id="map_canvas" style="float: left; width:50%; height:75%"></div>
 	<div id="menu" style="float: left;">
 		<form name="properties" action="">
 		
-		<input type=checkbox name="property" value="0" onclick="process(this)" checked="checked">1-toalised<br>
-		<input type=checkbox name="property" value="1" onclick="process(this)" checked="checked">2-toalised<br>
-		<input type=checkbox name="property" value="2" onclick="process(this)" checked="checked">3-toalised<br>
-		<input type=checkbox name="property" value="3" onclick="process(this)" checked="checked">4-ja-enamatoalised<br>
-		<input type=checkbox name="property" value="4" onclick="process(this)" checked="checked">Äripinnad<br>
-		<input type=checkbox name="property" value="5" onclick="process(this)" checked="checked">Garaažid<br>
-		<input type=checkbox name="property" value="6" onclick="process(this)" checked="checked">Suvilad<br>
-		<input type=checkbox name="property" value="7" onclick="process(this)" checked="checked">Majad<br>
-		<input type=checkbox name="property" value="8" onclick="process(this)" checked="checked">Majaosad<br>
-		<input type=checkbox name="property" value="9" onclick="process(this)" checked="checked">Maad<br>
+		<input type=checkbox name="property" value="0" onclick="process(this)" checked="checked"><img src="markers/0.png" />1-toalised<br>
+		<input type=checkbox name="property" value="1" onclick="process(this)" checked="checked"><img src="markers/1.png" />2-toalised<br>
+		<input type=checkbox name="property" value="2" onclick="process(this)" checked="checked"><img src="markers/2.png" />3-toalised<br>
+		<input type=checkbox name="property" value="3" onclick="process(this)" checked="checked"><img src="markers/3.png" />4-ja-enamatoalised<br>
+		<input type=checkbox name="property" value="4" onclick="process(this)" checked="checked"><img src="markers/4.png" />Äripinnad<br>
+		<input type=checkbox name="property" value="5" onclick="process(this)" checked="checked"><img src="markers/5.png" />Garaažid<br>
+		<input type=checkbox name="property" value="6" onclick="process(this)" checked="checked"><img src="markers/6.png" />Suvilad<br>
+		<input type=checkbox name="property" value="7" onclick="process(this)" checked="checked"><img src="markers/7.png" />Majad<br>
+		<input type=checkbox name="property" value="8" onclick="process(this)" checked="checked"><img src="markers/8.png" />Majaosad<br>
+		<input type=checkbox name="property" value="9" onclick="process(this)" checked="checked"><img src="markers/9.png" />Maad<br>
 		
 		<input type=button name="set" onclick="setAll(document.properties.property)" value="Sea kõik"><br>
 		<input type=button name="clear" onclick="clearAll(document.properties.property)" value="Puhasta kõik"><br>
