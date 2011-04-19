@@ -6,18 +6,24 @@
 <head>
 <title>LVM map</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-<link type="text/css" rel="stylesheet" href="style.css" />
 <style type="text/css">
-  html { height: 100% }
-  body { height: 100%; margin: 0px; padding: 0px }
+ html { height: 100%; font-size: 0.7em;}
+ body { height: 100%; margin: 0px; padding: 0px;}
   #map_canvas { height: 100% }
 </style>
+<link rel="stylesheet" type="text/css" href="jquery-ui/css/smoothness/jquery-ui-1.8.11.custom.css" />
+<script type="text/javascript" src="jquery-ui/js/jquery-1.5.1.min.js"></script>
+<script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.11.custom.min.js"></script>
 <script type="text/javascript"
 				src="http://maps.google.com/maps/api/js?sensor=false">
 </script>
 <script type="text/javascript" src="markerclusterer.js"></script>
 <script type="text/javascript" src="markermanager_packed.js"></script>
 <script type="text/javascript">
+	
+	$(function() {
+		$("#tabs").tabs();
+	});
 	
 	// Current transaction type
 	var transaction_type = 0; //sale
@@ -222,20 +228,14 @@
 </head>
 
 <body onload="initialize()">
-	<div id="objects-menu" class="otsing_top">
-		<ul id="countrytabs" class="shadetabs">
-			<li id="nupp1">
-				<a href="#" rel="country1" class="selected"><span>Müük</span</a>
-			</li>
-			<li id="nupp2">
-				<a href="#" rel="country2" class="selected"><span>Üür</span></a>
-			</li>
+	<div id="tabs" style="width: 75%;">
+		<ul>
+			<li><a href="#tabs-1">Müük</a></li>
+			<li><a href="#tabs-2">Üür</a></li>
 		</ul>
-	</div>
-	<div class="otsing_box">
-		<div id="country1" class="tabcontent" style="display:block">
+		<div id="tabs-1">
 			<form id="objects-form" name="properties" action="">
-				<table id="objects-selection" cellspacing="15">
+				<table id="objects-selection" cellspacing="10" style="font-size: 1em;">
 					<tr>
 						<td><input type=checkbox name="property" value="0" onclick="process(this)" checked="checked">
 						<img src="markers/0.png" />1-toalised<br>
@@ -282,6 +282,9 @@
 				</table>
 			</form>
 		</div>
+		<div id="tabs-2">
+		<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+	</div>
 	</div>
   <div id="map_canvas" style="width:75%; height:75%"></div>
 </body>
