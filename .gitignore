@@ -4,3 +4,7 @@ coords_dump
 latlong_coords
 *.xml
 *.bak*
+markerclusterer.js
+markermanager_packed.js
+prototype.js
+style.css
