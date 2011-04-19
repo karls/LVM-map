@@ -1,12 +1,13 @@
 <?php
-	
-	/*
-	 * TODO: do some error checking when fwriting stuff to disk
-	 * TODO: the converted coordinates are still a bit off, probably due
-	 *       to rounding errors and such
-	 * TODO: 
+	/**
+	 * Generates a file named final_obj_data.json which contains all the
+	 * information needed for the client-side of the map.
+	 *
+	 * @author Karl Sutt karl@sutt.ee
+	 * @copyright Karl Sutt 2011
+	 * @version 0.1
+	 * @todo: do some error checking when fwriting stuff to disk
 	 */
-	
 	
 	define("MAAAMET_URL", "http://www.maaamet.ee/rr/gauss/");
 	
@@ -65,7 +66,10 @@
 						"street"      => "$row->TANAV",
 						"house_no"    => "$row->MAJANR",
 						"object_type" => $object_types[$obj_type],
-						"num_rooms"   => intval(empty($row->KIRJELDUS_TOAD) ? "-1" : "$row->KIRJELDUS_TOAD"),
+						"num_rooms"   => intval(empty($row->KIRJELDUS_TOAD)
+													? "-1"
+													: "$row->KIRJELDUS_TOAD"),
+						"transaction_type" => $row->TEHING == "Müük" ? 0 : 1,
 						"additional_info" => "$row->LISAINFO_INFO"
 					),
 					array()
@@ -85,7 +89,7 @@
 		$coords_out .= $c;
 	}
 	// dump the coordinates into a file for later use in getting the lat and
-	//longitude from maaamet
+	// longfrom maaamet
 	$fp = fopen('coords_dump', 'w');
 	fwrite($fp, (string)$coords_out);
 	fclose($fp);
@@ -162,38 +166,61 @@
 	}
 	
 	$final_data = array(
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
-		array(),
+		array(
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		),
+		array(
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+			array(),
+		)
 	);
+	
 	
 	foreach($properties as $object)
 	{
 		// the object is an apartment
 		if ($object[1]["object_type"] == 0)
 		{
+			// if less than 4 rooms, can do # of rooms - 1 as the index
 			if ($object[1]["num_rooms"] < 4)
-				array_push($final_data[$object[1]["num_rooms"] - 1], $object);
+				array_push($final_data[$object[1]["transaction_type"]]
+				                      [$object[1]["num_rooms"] - 1], $object);
+			// 4 or more rooms, the index is 3
 			else
-				array_push($final_data[3], $object);
+				array_push($final_data[$object[1]["transaction_type"]]
+				                      [3], $object);
 		}
+		// the object is not an apartment, use object type ID + 3
+		// it's +3, because there are 4 different types of apartment
 		else
-			array_push($final_data[$object[1]["object_type"] + 3], $object);
+			array_push($final_data[$object[1]["transaction_type"]]
+			                      [$object[1]["object_type"] + 3], $object);
 	}
 	
 	
 	
 	//$final_data = json_encode($properties);
 	$final_data = json_encode($final_data);
-	$fp = fopen('final_obj_data_json', 'w');
-	fwrite($fp, $final_data);
+	$fp = fopen('final_obj_data.json', 'w');
+	if (fwrite($fp, $final_data))
+		echo "Success";
 	fclose($fp);
 	unset($fp);
 	
