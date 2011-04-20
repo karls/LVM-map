@@ -9,42 +9,99 @@
 	 * @todo: do some error checking when fwriting stuff to disk
 	 */
 	
+	// get the command line option for the language to get
+	$lang = $_SERVER["argv"][1];
+	
+	
 	define("MAAAMET_URL", "http://www.maaamet.ee/rr/gauss/");
+	define("COORDS_DUMP_FILE", "coords_dump.$lang.txt");
+	define("COORDS_LAT_LON", "latlon_coords.$lang.txt");
+	define("DATA_FILE", "final_data.$lang.json");
+	define("DEBUG", 1);
+	
 	
 	// est.xml contains data from city24
-	$xml_file = "est.xml";
+	$xml_file = "$lang.xml";
 	$xml_data = file_get_contents($xml_file);
 	
-	preg_match_all("#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i", $xml_data, $tmp_objs);
-	//print_r($tmp_objs);
-	//$json_object_types = json_encode($tmp_objs[1]);
-	//$fp = fopen('object_types_json', 'w');
-	//fwrite($fp, $json_object_types);
-	//fclose($fp);
-	//unset($fp);
 	
-	$object_types = array();
+	$regexps_based_on_lang = array(
+		"est" => "#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i",
+		"eng" => "#\s*<OBJECTTYPE>([[:print:]]+)</OBJECTTYPE>\s*#i",
+		"fin" => "#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i",
+		"rus" => "#\s*<OBJECTTYPE>([АаБбВвЕеЁёЖжЗзКкЛлМмНнОоПпРрДдЙйГгСсУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯяИиТт\-<>;&ltgbr ]+)</OBJECTTYPE>\s*#i"
+	);
+	
+	$transactions = array(
+		"est" => "Müük",
+		"eng" => "Sale",
+		"fin" => "Myynti",
+		"rus" => "Продажа"
+	);
+	
+	
+	dbg("Evaluating regexp\n");
+	preg_match_all($regexps_based_on_lang[$lang], $xml_data, $tmp_objs);
+	dbg("Found " . count($tmp_objs[1]) . " matches\n");
+	dbg("---\n");
+	
+	
 	/**
-	* XXX: preg_match_all seems to give the strings of wrong length in the first subarray and the
-	* strings of correct length (subpatterns) in the second subarray. this is a bit daft, and perhaps
-	* my understanding of how php regexes work is flawed, but i don't have the time now and it seems
-	* to work fine.
+	* XXX: preg_match_all seems to give the strings of wrong length in the first
+	*      subarray and the strings of correct length (subpatterns) in the second
+	*      subarray. this is a bit daft, and perhaps my understanding of how php
+	*      regexes work is flawed, but i don't have the time now and it seems to
+	*      work fine.
 	* TODO: investigate preg_match_all and the regex
 	*/
+	$object_types = array();
 	foreach ($tmp_objs[1] as $key => $val)
+	{
+		if ($lang == "eng" && trim($val) == "House&lt;br&gt;share")
+			$val = "Houseshare";
+		if ($lang == "rus" && trim($val) == "Коммер-&lt;br&gt;ческий")
+			$val = "Коммерческий";
+		if ($lang == "rus" && trim($val) == "Часть&lt;br&gt;дома")
+			$val = "Частьдома";
+		if ($lang == "rus" && trim($val) == "Участок&lt;br&gt;земли")
+			$val = "Участокземли";
 		$object_types[trim($val)] = $key;
+	}
 	unset($tmp_objs);
 	
+	// Start building the $properties array
+	dbg("Starting to build the object data array\n");
 	$xml = new SimpleXMLElement($xml_data, LIBXML_NOCDATA);
 	$count = 0;
 	$rowcount = 0;
 	$properties = array();
 	$coordinates = array();
+	
 	// iterate over each rowset -- rowsets are types of different property
 	foreach ($xml->ROWSET as $rowset)
 	{
 		// iterate over each row in each rowset -- a row corresponds to a property
 		$obj_type = trim($rowset->OBJECTTYPE);
+		/************************************************************************
+		*    WARNING ! ! !
+		*    This is a massive hack.
+		*
+		*    Because City24 has done something horrific to its xml export thing, the
+		*    OBJECTTYPE of "House share" (specified in the technical document
+		*    "City24 data exchange") comes back as "House<br>share", this awful hack
+		*    is needed..
+		*    Seriously, City24..?
+		*************************************************************************/
+		if ($lang == "eng" && $obj_type == "House<br>share")
+			$obj_type = "Houseshare";
+		
+		if ($lang == "rus" && $obj_type == "Коммер-<br>ческий")
+			$obj_type = "Коммерческий";
+		if ($lang == "rus" && $obj_type == "Часть<br>дома")
+			$obj_type = "Частьдома";
+		if ($lang == "rus" && $obj_type == "Участок<br>земли")
+			$obj_type = "Участокземли";
+		
 		foreach ($rowset->ROW as $row)
 		{
 			// let's build a string to represent the address of a property
@@ -65,11 +122,12 @@
 						"city"        => "$row->LINN",
 						"street"      => "$row->TANAV",
 						"house_no"    => "$row->MAJANR",
-						"object_type" => $object_types[$obj_type],
+						"price"       => intval($row->HIND),
+						"object_type" => $object_types["$obj_type"],
 						"num_rooms"   => intval(empty($row->KIRJELDUS_TOAD)
 													? "-1"
 													: "$row->KIRJELDUS_TOAD"),
-						"transaction_type" => $row->TEHING == "Müük" ? 0 : 1,
+						"transaction_type" => $row->TEHING == $transactions[$lang] ? 0 : 1,
 						"additional_info" => "$row->LISAINFO_INFO"
 					),
 					array()
@@ -80,6 +138,8 @@
 			}
 		}// foreach
 	}// foreach
+	dbg("Done building the array\n");
+	dbg("---\n");
 	
 	// this is just so that we dump a string -- walk over every coordinate tuple
 	// and append them to a string
@@ -90,14 +150,19 @@
 	}
 	// dump the coordinates into a file for later use in getting the lat and
 	// longfrom maaamet
-	$fp = fopen('coords_dump', 'w');
+	dbg("Dumping coordinates from the xml file\n");
+	$fp = fopen(COORDS_DUMP_FILE, 'w');
 	fwrite($fp, (string)$coords_out);
 	fclose($fp);
 	unset($fp);
+	dbg("Dumping done\n");
+	dbg("---\n");
 	
+	
+	dbg("Pulling data from Maaamet\n");
 	// the data needed by maaamet, pretty self explanatory
 	$postdata = array(
-		"fail[]" => "@".dirname(__FILE__) . "/coords_dump",
+		"fail[]" => "@".dirname(__FILE__) . "/" . COORDS_DUMP_FILE,
 		"MAX_FILE_SIZE" => "15000000",
 		"in_par" => "l_estkat.par",
 		"out_par" => "eurefkat.par",
@@ -118,6 +183,8 @@
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 	$page = curl_exec($ch);
 	curl_close($ch);
+	dbg("Pulling finished\n");
+	dbg("---\n");
 	
 	// get the filename containing the converted coordinates
 	preg_match("/files\/[a-zA-Z0-9]+\.txt/", $page, $matches);
@@ -131,11 +198,13 @@
 	$latlong_coords = curl_exec($ch);
 	curl_close($ch);
 	// write it to disk
-	$fp = fopen('latlong_coords', 'w');
+	dbg("Dumping converted coordinates\n");
+	$fp = fopen(COORDS_LAT_LON, 'w');
 	fwrite($fp, $latlong_coords);
 	fclose($fp);
 	unset($fp);
 	
+	dbg("Parsing out the converted coordinates\n");
 	$latlong_coords_array = array();
 	$i = 0;
 	foreach(preg_split("/\r?\n/", $latlong_coords) as $line)
@@ -158,12 +227,11 @@
 		$lon_s = $lon_matches[0][3];
 		$converted_lat = bcadd($lat_d, bcdiv($lat_m * 60 + $lat_s, 3600.0, $p), $p);
 		$converted_lon = bcadd($lon_d, bcdiv($lon_m * 60 + $lon_s, 3600.0, $p), $p);
-		//echo "lat: $converted_lat, long: $converted_long\n";
 		array_push($properties[$i][2], $converted_lat, $converted_lon);
-		           //preg_replace($pattern, $replacement, $lat),
-		           //preg_replace($pattern, $replacement, $long));
 		$i++;
 	}
+	dbg("Parsing done\n");
+	dbg("---\n");
 	
 	$final_data = array(
 		array(
@@ -193,6 +261,7 @@
 	);
 	
 	
+	dbg("Converting initial object data into client-side data-structure\n");
 	foreach($properties as $object)
 	{
 		// the object is an apartment
@@ -213,16 +282,23 @@
 			array_push($final_data[$object[1]["transaction_type"]]
 			                      [$object[1]["object_type"] + 3], $object);
 	}
+	dbg("Conversion done\n");
+	dbg("---\n");
 	
-	
-	
-	//$final_data = json_encode($properties);
+	dbg("Dumping final data\n");
 	$final_data = json_encode($final_data);
-	$fp = fopen('final_obj_data.json', 'w');
+	$fp = fopen(DATA_FILE, 'w');
 	if (fwrite($fp, $final_data))
-		echo "Success";
+		dbg("Success\n");
 	fclose($fp);
 	unset($fp);
+	dbg("Dumping done\n");
+	
+	function dbg($str)
+	{
+		if (DEBUG)
+			echo($str);
+	}
 	
 	
 ?>
