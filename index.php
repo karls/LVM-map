@@ -17,13 +17,8 @@
 <script type="text/javascript"
 				src="http://maps.google.com/maps/api/js?sensor=false">
 </script>
-<script type="text/javascript" src="markerclusterer.js"></script>
-<script type="text/javascript" src="markermanager_packed.js"></script>
+<script type="text/javascript" src="markerclusterer_packed.js"></script>
 <script type="text/javascript">
-	
-	$(function() {
-		$("#tabs").tabs();
-	});
 	
 	// Current transaction type
 	var transaction_type = 0; //sale
@@ -153,9 +148,12 @@
 			}// for
 		}// for
 		
-		for (i = 0; i < markers_flattened[Math.abs(transaction_type - 1)].length; i++)
-			markers_flattened[Math.abs(transaction_type - 1)][i].setVisible(false);
-		mc = new MarkerClusterer(map, markers_flattened[transaction_type], mcOpts);
+		// Create the MarkerClusterer
+		mc = new MarkerClusterer(map, null, mcOpts);
+		
+		
+		// Create a new calculator -- this one calculates the clusters based on the
+		// visibility of the markers
 		mc.setCalculator(function(markers, numStyles)
 			{
 				var index = 0;
@@ -224,66 +222,136 @@
 		mc.resetViewport();
 		mc.redraw();
 	}
+	
+	
+	function switch_transaction(t_type)
+	{
+		if (t_type == 0)
+			setAll(document.saleproperties.saleproperty);
+		else
+			setAll(document.rentproperties.rentproperty);
+		
+		transaction_type = t_type;
+		mc.clearMarkers();
+		for (i = 0; i < markers_flattened[Math.abs(t_type - 1)].length; i++)
+			markers_flattened[Math.abs(t_type - 1)][i].setVisible(false);
+		for (i = 0; i < markers_flattened[t_type].length; i++)
+			markers_flattened[t_type][i].setVisible(true);
+		mc.addMarkers(markers_flattened[t_type]);
+		mc.resetViewport();
+		mc.redraw();
+	}
+	
+	$(function() {
+		initialize();
+		$("#tabs").tabs({
+			show: function(event, ui)
+			{
+				switch_transaction(ui.index);
+			}
+		});
+	});
+	
 </script>
 </head>
 
-<body onload="initialize()">
+<body>
 	<div id="tabs" style="width: 75%;">
 		<ul>
 			<li><a href="#tabs-1">Müük</a></li>
 			<li><a href="#tabs-2">Üür</a></li>
 		</ul>
 		<div id="tabs-1">
-			<form id="objects-form" name="properties" action="">
-				<table id="objects-selection" cellspacing="10" style="font-size: 1em;">
+			<form id="sale-form" name="saleproperties" action="">
+				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
-						<td><input type=checkbox name="property" value="0" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
 						<img src="markers/0.png" />1-toalised<br>
 						</td>
-						<td><input type=checkbox name="property" value="1" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="1" onclick="process(this)" checked="checked">
 						<img src="markers/1.png" />2-toalised<br>
 						</td>
-						<td><input type=checkbox name="property" value="2" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="2" onclick="process(this)" checked="checked">
 						<img src="markers/2.png" />3-toalised<br>
 						</td>
-						<td><input type=checkbox name="property" value="3" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
 						<img src="markers/3.png" />4-ja-enamatoalised<br>
+						</td>
+						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
+						<img src="markers/4.png" />Äripinnad<br>
+						</td>
+						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)" value="Sea kõik"><br>
 						</td>
 						</tr>
 						<tr>
-						<td><input type=checkbox name="property" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" />Äripinnad<br>
-						</td>
-						<td><input type=checkbox name="property" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" />Garaažid<br>
-						</td>
-						<td><input type=checkbox name="property" value="6" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
 						<img src="markers/6.png" />Suvilad<br>
 						</td>
-						<td><input type=checkbox name="property" value="7" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
 						<img src="markers/7.png" />Majad<br>
 						</td>
-						</tr>
-						<tr/>
-						<td><input type=checkbox name="property" value="8" onclick="process(this)" checked="checked">
+						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
 						<img src="markers/8.png" />Majaosad<br>
 						</td>
 						<td>
-						<input type=checkbox name="property" value="9" onclick="process(this)" checked="checked">
+						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
 						<img src="markers/9.png" />Maad<br>
 						</td>
-						<td>
-						<input type=button name="set" onclick="setAll(document.properties.property)" value="Sea kõik"><br>
+						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
+						<img src="markers/5.png" />Garaažid<br>
 						</td>
 						<td>
-						<input type=button name="clear" onclick="clearAll(document.properties.property)" value="Puhasta kõik"><br>
+						<input type=button name="clear" onclick="clearAll(document.saleproperties.saleproperty)" value="Puhasta kõik"><br>
 						</td>
 					</tr>
 				</table>
 			</form>
 		</div>
 		<div id="tabs-2">
-		<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
+			<form id="rent-form" name="rentproperties" action="">
+				<table id="objects-selection" style="font-size: 1em;">
+					<tr>
+						<td><input type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
+						<img src="markers/0.png" />1-toalised<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="1" onclick="process(this)" checked="checked">
+						<img src="markers/1.png" />2-toalised<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="2" onclick="process(this)" checked="checked">
+						<img src="markers/2.png" />3-toalised<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="3" onclick="process(this)" checked="checked">
+						<img src="markers/3.png" />4-ja-enamatoalised<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
+						<img src="markers/4.png" />Äripinnad<br>
+						</td>
+						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)" value="Sea kõik"><br>
+						</td>
+						</tr>
+						<tr>
+						<td><input type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
+						<img src="markers/6.png" />Suvilad<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
+						<img src="markers/7.png" />Majad<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
+						<img src="markers/8.png" />Majaosad<br>
+						</td>
+						<td>
+						<input type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
+						<img src="markers/9.png" />Maad<br>
+						</td>
+						<td><input type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
+						<img src="markers/5.png" />Garaažid<br>
+						</td>
+						<td>
+						<input type=button name="clear" onclick="clearAll(document.rentproperties.rentproperty)" value="Puhasta kõik"><br>
+						</td>
+					</tr>
+				</table>
+			</form>
 	</div>
 	</div>
   <div id="map_canvas" style="width:75%; height:75%"></div>
