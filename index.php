@@ -1,13 +1,89 @@
 <?php
+	session_start();
+	session_register("Lang");
+	$Lang = "eng";
 	header('Content-type: text/html; charset=utf-8');
-	$data = file_get_contents('final_obj_data.json');
+	$data = file_get_contents("final_data.$Lang.json");
+	$obj_type_string_pool = array(
+		"est" => array(
+			"1-toalised",
+			"2-toalised",
+			"3-toalised",
+			"4-toalised",
+			"Äripinnad",
+			"Suvilad",
+			"Majad",
+			"Majaosad",
+			"Maad"
+		),
+		"eng" => array(
+			"One-room",
+			"Two-room",
+			"Three-room",
+			"Four-room",
+			"Commercial",
+			"Summer cottages",
+			"Houses",
+			"House shares",
+			"Lands"
+		),
+		"rus" => array(
+			"1-комнатные",
+			"2-комнатные",
+			"3-комнатные",
+			"4-комнатные",
+			"Коммерческий",
+			"Дача",
+			"Дом",
+			"Часть дома",
+			"Участок земли"
+		),
+		"fin" => array(
+			"1 huoneen asunto",
+			"2 huoneen asunto",
+			"3 huoneen asunto",
+			"4 huoneen asunnot ja suuremmat",
+			"Liiketila",
+			"Mökki",
+			"Talo",
+			"Paritalo",
+			"Tontti"
+		)
+	);
+	
+	$infowindow_fields = array(
+		"est" => array(
+			"address" => "Aadress",
+			"price" => "Hind",
+			"additional_info" => "Lisainfo",
+			"link" => "Link"
+		),
+		"eng" => array(
+			"address" => "Address",
+			"price" => "Price",
+			"additional_info" => "Additional info",
+			"link" => "Link"
+		),
+		"fin" => array(
+			"address" => "Aadress",
+			"price" => "Hind",
+			"additional_info" => "Lisainfo",
+			"link" => "Link"
+		),
+		"rus" => array(
+			"address" => "Aadress",
+			"price" => "Hind",
+			"additional_info" => "Lisainfo",
+			"link" => "Link"
+		)
+	);
 ?>
 <html>
 <head>
 <title>LVM map</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <style type="text/css">
- html { height: 100%; font-size: 0.7em;}
+ html { height: 100%; font-size: 16px;}
  body { height: 100%; margin: 0px; padding: 0px;}
   #map_canvas { height: 100% }
 </style>
@@ -131,7 +207,12 @@
 						position: latlng,
 						title: geocode_results[h][i][j][0],
 						map: map,
-						obj_info: geocode_results[h][i][j][1].additional_info,
+						obj_info: "<?php echo $infowindow_fields[$Lang]["address"]; ?>: "+geocode_results[h][i][j][1].street
+						+" "+geocode_results[h][i][j][1].house_no
+						+", "+geocode_results[h][i][j][1].city
+						+"<br><?php echo $infowindow_fields[$Lang]["price"]; ?>: "+geocode_results[h][i][j][1].price+"€"
+						+"<br><?php echo $infowindow_fields[$Lang]["link"]; ?>: <a href='http://www.lvm.ee/?op=body&zid="+geocode_results[h][i][j][0]+"&id=63&showLong=1'>Link</a>"
+						+"<br><?php echo $infowindow_fields[$Lang]["additional_info"]; ?>: "+geocode_results[h][i][j][1].additional_info,
 						icon: markerImage
 					});
 					
@@ -176,17 +257,6 @@
 			});
 	}// initialize
 
-	//function process(box)
-	//{
-	//	var sum = 0;
-	//	for (i = 0; i < box; i++)
-	//		sum += geocode_results[i].lenght;
-	//	for (i = sum; i < geocode_results[box.value].length; i++)
-	//		sale_markers_flat[i].setVisible(box.checked);
-	//	mc.resetViewport();
-	//	mc.redraw();
-	//}
-	
 	function process(box)
 	{
 		for (i = 0; i < markers[transaction_type][box.value].length; i++)
@@ -195,11 +265,21 @@
 		mc.redraw();
 	}
 	
-	function setAll(property)
+	function checkAll(property)
 	{
 		for (i = 0; i < property.length; i++)
 			property[i].checked = true;
-		
+	}
+	
+	function uncheckAll(property)
+	{
+		for (i = 0; i < property.length; i++)
+			property[i].checked = false;
+	}
+	
+	function setAll(property)
+	{
+		checkAll(property);
 		for (i = 0; i < markers[transaction_type].length; i++)
 		{
 			for (j = 0; j < markers[transaction_type][i].length; j++)
@@ -211,9 +291,7 @@
 	
 	function clearAll(property)
 	{
-		for (i = 0; i < property.length; i++)
-			property[i].checked = false;
-		
+		uncheckAll(property);
 		for (i = 0; i < markers[transaction_type].length; i++)
 		{
 			for (j = 0; j < markers[transaction_type][i].length; j++)
@@ -227,9 +305,9 @@
 	function switch_transaction(t_type)
 	{
 		if (t_type == 0)
-			setAll(document.saleproperties.saleproperty);
+			checkAll(document.saleproperties.saleproperty);
 		else
-			setAll(document.rentproperties.rentproperty);
+			checkAll(document.rentproperties.rentproperty);
 		
 		transaction_type = t_type;
 		mc.clearMarkers();
@@ -256,7 +334,7 @@
 </head>
 
 <body>
-	<div id="tabs" style="width: 75%;">
+	<div id="tabs" style="width: 75%; font-size: 0.7em;">
 		<ul>
 			<li><a href="#tabs-1">Müük</a></li>
 			<li><a href="#tabs-2">Üür</a></li>
@@ -266,36 +344,36 @@
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
-						<img src="markers/0.png" />1-toalised<br>
+						<img src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="1" onclick="process(this)" checked="checked">
-						<img src="markers/1.png" />2-toalised<br>
+						<img src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="2" onclick="process(this)" checked="checked">
-						<img src="markers/2.png" />3-toalised<br>
+						<img src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
-						<img src="markers/3.png" />4-ja-enamatoalised<br>
+						<img src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" />Äripinnad<br>
+						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)" value="Sea kõik"><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" />Suvilad<br>
+						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" />Majad<br>
+						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" />Majaosad<br>
+						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" />Maad<br>
+						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
 						<img src="markers/5.png" />Garaažid<br>
@@ -312,36 +390,36 @@
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
-						<img src="markers/0.png" />1-toalised<br>
+						<img src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="1" onclick="process(this)" checked="checked">
-						<img src="markers/1.png" />2-toalised<br>
+						<img src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="2" onclick="process(this)" checked="checked">
-						<img src="markers/2.png" />3-toalised<br>
+						<img src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="3" onclick="process(this)" checked="checked">
-						<img src="markers/3.png" />4-ja-enamatoalised<br>
+						<img src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" />Äripinnad<br>
+						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)" value="Sea kõik"><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" />Suvilad<br>
+						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" />Majad<br>
+						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" />Majaosad<br>
+						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" />Maad<br>
+						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
 						<img src="markers/5.png" />Garaažid<br>
