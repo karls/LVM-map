@@ -1,12 +1,11 @@
 <?php
 	/**
-	 * Generates a file named final_obj_data.json which contains all the
-	 * information needed for the client-side of the map.
+	 * Generates a file named final_data.[est|eng|fin|rus].json which contains all
+	 * the information needed for the client-side of the map.
 	 *
 	 * @author Karl Sutt karl@sutt.ee
 	 * @copyright Karl Sutt 2011
-	 * @version 0.1
-	 * @todo: do some error checking when fwriting stuff to disk
+	 * @version 1.0
 	 * @todo: add license
 	 */
 	
@@ -75,8 +74,8 @@
 		/************************************************************************
 		 * WARNING ! ! !
 		 *
-		 * This is unbelievable, but the data from City24 has HTML in it and other
-		 * funky stuff. This is a massive hack.
+		 * This is unbelievable, but the data from City24 has HTML and other funky
+		 * stuff in it. This is a massive hack.
 		 *
 		 * I have no idea why the data is what is it, but it is.
 		 */
@@ -150,6 +149,7 @@
 						"street"      => "$row->TANAV",
 						"house_no"    => "$row->MAJANR",
 						"price"       => intval($row->HIND),
+						"image_addr"  => "$row->PILT1",
 						"object_type" => $object_types["$obj_type"],
 						"num_rooms"   => intval(empty($row->KIRJELDUS_TOAD)
 													? "-1"
