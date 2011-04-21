@@ -13,6 +13,18 @@
 	$lang = $_SERVER["argv"][1];
 	
 	
+	/**
+	 * Debugging function
+	 * Set the constant DEBUG to 1 to enable debugging, 0 to disable
+	 */
+	function dbg($str)
+	{
+		if (DEBUG)
+			echo($str);
+	}
+	
+	
+	// Define some constants, pretty self-explanatory
 	define("MAAAMET_URL", "http://www.maaamet.ee/rr/gauss/");
 	define("COORDS_DUMP_FILE", "coords_dump.$lang.txt");
 	define("COORDS_LAT_LON", "latlon_coords.$lang.txt");
@@ -20,11 +32,12 @@
 	define("DEBUG", 1);
 	
 	
-	// est.xml contains data from city24
+	// [est|eng|fin|rus].xml contains data from city24 in that language
 	$xml_file = "$lang.xml";
 	$xml_data = file_get_contents($xml_file);
 	
 	
+	// regular expressions for parsing different xml files. ugly, but works.
 	$regexps_based_on_lang = array(
 		"est" => "#\s*<OBJECTTYPE>([[:print:]üõöäÜÕÖÄ]+)</OBJECTTYPE>\s*#i",
 		"eng" => "#\s*<OBJECTTYPE>([[:print:]]+)</OBJECTTYPE>\s*#i",
@@ -32,6 +45,7 @@
 		"rus" => "#\s*<OBJECTTYPE>([АаБбВвЕеЁёЖжЗзКкЛлМмНнОоПпРрДдЙйГгСсУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯяИиТт\-<>;&ltgbr ]+)</OBJECTTYPE>\s*#i"
 	);
 	
+	// transaction types in different languages
 	$transactions = array(
 		"est" => "Müük",
 		"eng" => "Sale",
@@ -57,6 +71,14 @@
 	$object_types = array();
 	foreach ($tmp_objs[1] as $key => $val)
 	{
+		/************************************************************************
+		 * WARNING ! ! !
+		 *
+		 * This is unbelievable, but the data from City24 has HTML in it and other
+		 * funky stuff. This is a massive hack.
+		 *
+		 * I have no idea why the data is what is it, but it is.
+		 */
 		if ($lang == "eng" && trim($val) == "House&lt;br&gt;share")
 			$val = "Houseshare";
 		if ($lang == "rus" && trim($val) == "Коммер-&lt;br&gt;ческий")
@@ -77,13 +99,13 @@
 	$properties = array();
 	$coordinates = array();
 	
-	// iterate over each rowset -- rowsets are types of different property
+	// Iterate over each rowset -- rowsets are types of different property
 	foreach ($xml->ROWSET as $rowset)
 	{
-		// iterate over each row in each rowset -- a row corresponds to a property
+		// Iterate over each row in each rowset -- a row corresponds to a property
 		$obj_type = trim($rowset->OBJECTTYPE);
 		/************************************************************************
-		*    WARNING ! ! !
+		*    WARNING ! ! ! (See the other warning as well, 30 lines above)
 		*    This is a massive hack.
 		*
 		*    Because City24 has done something horrific to its xml export thing, the
@@ -102,20 +124,24 @@
 		if ($lang == "rus" && $obj_type == "Участок<br>земли")
 			$obj_type = "Участокземли";
 		
+		// For each row in a rowset (property type)
 		foreach ($rowset->ROW as $row)
 		{
-			// let's build a string to represent the address of a property
+			// Let's build a string to represent the address of a property
 			$x = $row->COORDINATE_X;
 			$y = $row->COORDINATE_Y;
-			// the $y . "5" is essentially a hack, since the data from
-			// city24 is weird -- the Y coordinate comes as a number with one digit
-			// less than needed (the last digit - 10m precision). weird stuff anyways.
 			
 			if ($x != '' && $y != '')
 			{
+				// The $y."5" is essentially a hack, since the data from
+				// city24 is weird -- the Y coordinate comes as a number with one digit
+				// less than needed (the last digit - 10m precision). weird stuff anyways.
 				$coords = $row->ID." ".$y."5 ".$x." 0\r\n";
-				// we only want data about objects that have coordinates for.
-				// also TODO: this data is incomplete
+				
+				
+				// We only want data about objects that have coordinates for.
+				// Format looks like this:
+				// an array of [ID, [array, of, fields, for, a, property], [lat, lon]]
 				array_push($properties, array(
 					"$row->ID",
 					array(
@@ -141,15 +167,15 @@
 	dbg("Done building the array\n");
 	dbg("---\n");
 	
-	// this is just so that we dump a string -- walk over every coordinate tuple
+	// This is just so that we dump a string -- walk over every coordinate tuple
 	// and append them to a string
 	$coords_out = '';
 	foreach ($coordinates as $c)
 	{
 		$coords_out .= $c;
 	}
-	// dump the coordinates into a file for later use in getting the lat and
-	// longfrom maaamet
+	// Dump the coordinates into a file for later use in getting the lat and
+	// long from maaamet
 	dbg("Dumping coordinates from the xml file\n");
 	$fp = fopen(COORDS_DUMP_FILE, 'w');
 	fwrite($fp, (string)$coords_out);
@@ -159,7 +185,7 @@
 	dbg("---\n");
 	
 	
-	dbg("Pulling data from Maaamet\n");
+	dbg("Pushing coordinate data to Maaamet\n");
 	// the data needed by maaamet, pretty self explanatory
 	$postdata = array(
 		"fail[]" => "@".dirname(__FILE__) . "/" . COORDS_DUMP_FILE,
@@ -183,9 +209,10 @@
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 	$page = curl_exec($ch);
 	curl_close($ch);
-	dbg("Pulling finished\n");
+	dbg("Pushing donw\n");
 	dbg("---\n");
 	
+	dbg("Pulling converted coordinates\n");
 	// get the filename containing the converted coordinates
 	preg_match("/files\/[a-zA-Z0-9]+\.txt/", $page, $matches);
 	$latlong_file = $matches[0];
@@ -197,19 +224,29 @@
 	curl_setopt($ch, CURLOPT_HEADER, FALSE);
 	$latlong_coords = curl_exec($ch);
 	curl_close($ch);
+	dbg("Pulling done\n");
+	dbg("---\n");
+	
+	
 	// write it to disk
 	dbg("Dumping converted coordinates\n");
 	$fp = fopen(COORDS_LAT_LON, 'w');
 	fwrite($fp, $latlong_coords);
 	fclose($fp);
 	unset($fp);
+	dbg("Dumping done\n");
+	dbg("---\n");
+	
 	
 	dbg("Parsing out the converted coordinates\n");
 	$latlong_coords_array = array();
 	$i = 0;
+	// for each line
 	foreach(preg_split("/\r?\n/", $latlong_coords) as $line)
 	{
 		if ($line == "") break;
+		
+		// Get the id, lat and long out. Also height, but we don't use it.
 		list($id, $lat, $long, $h) = sscanf($line, "%d %f %f %f");
 		/* DEBUGGING
 		$lat = 58.222857;
@@ -218,20 +255,30 @@
 		$pattern = "/(\d{2})\.(\d{2})(\d{2})/";
 		preg_match_all($pattern, $lat, $lat_matches, PREG_SET_ORDER);
 		preg_match_all($pattern, $long, $lon_matches, PREG_SET_ORDER);
+		
+		
 		$p = 5; //precision
+		
+		// Get degrees, minutes, seconds out
 		$lat_d = $lat_matches[0][1];
 		$lat_m = $lat_matches[0][2];
 		$lat_s = $lat_matches[0][3];
 		$lon_d = $lon_matches[0][1];
 		$lon_m = $lon_matches[0][2];
 		$lon_s = $lon_matches[0][3];
+		
+		// Convert to global coordinates
 		$converted_lat = bcadd($lat_d, bcdiv($lat_m * 60 + $lat_s, 3600.0, $p), $p);
 		$converted_lon = bcadd($lon_d, bcdiv($lon_m * 60 + $lon_s, 3600.0, $p), $p);
+		
+		// Add to the properties array
 		array_push($properties[$i][2], $converted_lat, $converted_lon);
 		$i++;
 	}
 	dbg("Parsing done\n");
 	dbg("---\n");
+	
+	
 	
 	$final_data = array(
 		array(
@@ -264,10 +311,10 @@
 	dbg("Converting initial object data into client-side data-structure\n");
 	foreach($properties as $object)
 	{
-		// the object is an apartment
+		// The object is an apartment
 		if ($object[1]["object_type"] == 0)
 		{
-			// if less than 4 rooms, can do # of rooms - 1 as the index
+			// If less than 4 rooms, can do # of rooms - 1 as the index
 			if ($object[1]["num_rooms"] < 4)
 				array_push($final_data[$object[1]["transaction_type"]]
 				                      [$object[1]["num_rooms"] - 1], $object);
@@ -276,8 +323,8 @@
 				array_push($final_data[$object[1]["transaction_type"]]
 				                      [3], $object);
 		}
-		// the object is not an apartment, use object type ID + 3
-		// it's +3, because there are 4 different types of apartment
+		// The object is not an apartment, use object type ID + 3.
+		// It's +3, because there are 4 different types of apartment
 		else
 			array_push($final_data[$object[1]["transaction_type"]]
 			                      [$object[1]["object_type"] + 3], $object);
@@ -293,12 +340,6 @@
 	fclose($fp);
 	unset($fp);
 	dbg("Dumping done\n");
-	
-	function dbg($str)
-	{
-		if (DEBUG)
-			echo($str);
-	}
 	
 	
 ?>
