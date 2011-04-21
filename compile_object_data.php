@@ -7,6 +7,7 @@
 	 * @copyright Karl Sutt 2011
 	 * @version 0.1
 	 * @todo: do some error checking when fwriting stuff to disk
+	 * @todo: add license
 	 */
 	
 	// get the command line option for the language to get
