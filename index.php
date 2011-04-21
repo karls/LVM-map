@@ -1,6 +1,6 @@
 <?php
-	session_start();
-	session_register("Lang");
+	@session_start();
+	@session_register("Lang");
 	$Lang = isset($_GET["setlang"]) ? $_GET["setlang"] : "est";
 	header('Content-type: text/html; charset=utf-8');
 	$data = file_get_contents("final_data.$Lang.json");
@@ -140,6 +140,9 @@
 	form {
 		margin: 0;
 	}
+	#tabs-1, #tabs-2 {
+		padding: 0.5em 1.4em;
+	}
 	
 	#map_canvas {
 		margin-top: 5px;
@@ -215,16 +218,22 @@ function initialize() {
 				
 				marker = new google.maps.Marker({
 					position: latlng,
-					title: geocode_results[h][i][j][0],
+					title: geocode_results[h][i][j][1].street
+					+" "+geocode_results[h][i][j][1].house_no
+					+", "+geocode_results[h][i][j][1].city
+					+", "+geocode_results[h][i][j][1].price + " €",
 					map: map,
-					obj_info: "<p class='objinfo'><b><?php echo $infowindow_fields[$Lang]['address']; ?></b>: "
+					obj_info: "<p style='text-align: justify; margin-right: 10px;' class='objinfo'><b><?php echo $infowindow_fields[$Lang]['address']; ?></b>: "
 					+"<a href='http://www.lvm.ee/?op=body&zid="
 					+geocode_results[h][i][j][0]+"&id=63&showLong=1' target='_blank'>"
 					+geocode_results[h][i][j][1].street
 					+" "+geocode_results[h][i][j][1].house_no
 					+", "+geocode_results[h][i][j][1].city
 					+"</a>"
-					+"<br><b><?php echo $infowindow_fields[$Lang]['price']; ?></b>: "
+					+"<br><a href='http://www.lvm.ee/?op=body&zid="
+					+geocode_results[h][i][j][0]+"&id=63&showLong=1' target='_blank'>"
+					+"<img style='margin-left: 5px; margin-bottom: 5px; float: right;' src="+geocode_results[h][i][j][1].image_addr+" height='70' /></a>"
+					+"<b><?php echo $infowindow_fields[$Lang]['price']; ?></b>: "
 					+geocode_results[h][i][j][1].price+" €"
 					+"<br><b><?php echo $infowindow_fields[$Lang]['additional_info']; ?></b>: "
 					+geocode_results[h][i][j][1].additional_info
@@ -288,39 +297,39 @@ function initialize() {
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
-						<img src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
+						<img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="1" onclick="process(this)" checked="checked">
-						<img src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
+						<img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="2" onclick="process(this)" checked="checked">
-						<img src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
+						<img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
-						<img src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
+						<img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
+						<img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						<img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
+						<img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
+						<img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)"
 						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
@@ -338,39 +347,39 @@ function initialize() {
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
-						<img src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
+						<img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="1" onclick="process(this)" checked="checked">
-						<img src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
+						<img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="2" onclick="process(this)" checked="checked">
-						<img src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
+						<img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="3" onclick="process(this)" checked="checked">
-						<img src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
+						<img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
+						<img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						<img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
+						<img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
+						<img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)"
 						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
