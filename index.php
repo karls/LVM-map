@@ -1,9 +1,10 @@
 <?php
 	session_start();
 	session_register("Lang");
-	$Lang = "eng";
+	$Lang = "est";
 	header('Content-type: text/html; charset=utf-8');
 	$data = file_get_contents("final_data.$Lang.json");
+	
 	$obj_type_string_pool = array(
 		"est" => array(
 			"1-toalised",
@@ -11,10 +12,13 @@
 			"3-toalised",
 			"4-toalised",
 			"Äripinnad",
+			"Garaažid",
 			"Suvilad",
 			"Majad",
 			"Majaosad",
-			"Maad"
+			"Maad",
+			"Vali kõik",
+			"Puhasta kõik"
 		),
 		"eng" => array(
 			"One-room",
@@ -22,10 +26,13 @@
 			"Three-room",
 			"Four-room",
 			"Commercial",
+			"Garages",
 			"Summer cottages",
 			"Houses",
 			"House shares",
-			"Lands"
+			"Lands",
+			"Select all",
+			"Clear all"
 		),
 		"rus" => array(
 			"1-комнатные",
@@ -33,21 +40,27 @@
 			"3-комнатные",
 			"4-комнатные",
 			"Коммерческий",
+			"гаражы",
 			"Дача",
 			"Дом",
 			"Часть дома",
-			"Участок земли"
+			"Участок земли",
+			"Выбрать все",
+			"Очистить все"
 		),
 		"fin" => array(
 			"1 huoneen asunto",
 			"2 huoneen asunto",
 			"3 huoneen asunto",
-			"4 huoneen asunnot ja suuremmat",
+			"4 huoneen asunto",
 			"Liiketila",
+			"Autotalli",
 			"Mökki",
 			"Talo",
 			"Paritalo",
-			"Tontti"
+			"Tontti",
+			"Valitse kaikki",
+			"Puhdista kaikki"
 		)
 	);
 	
@@ -55,26 +68,41 @@
 		"est" => array(
 			"address" => "Aadress",
 			"price" => "Hind",
-			"additional_info" => "Lisainfo",
-			"link" => "Link"
+			"additional_info" => "Lisainfo"
 		),
 		"eng" => array(
 			"address" => "Address",
 			"price" => "Price",
-			"additional_info" => "Additional info",
-			"link" => "Link"
+			"additional_info" => "Additional info"
 		),
 		"fin" => array(
-			"address" => "Aadress",
-			"price" => "Hind",
-			"additional_info" => "Lisainfo",
-			"link" => "Link"
+			"address" => "Адрес",
+			"price" => "Щена",
+			"additional_info" => "Дополнцтелбная информация"
 		),
 		"rus" => array(
-			"address" => "Aadress",
-			"price" => "Hind",
-			"additional_info" => "Lisainfo",
-			"link" => "Link"
+			"address" => "Lähiosoite",
+			"price" => "Hinta",
+			"additional_info" => "Lisätietoa"
+		)
+	);
+	
+	$transaction_type = array(
+		"est" => array(
+			"Müük",
+			"Üürile anda"
+		),
+		"eng" => array(
+			"Sale",
+			"For rent",
+		),
+		"fin" => array(
+			"Myynti",
+			"Annetaan vuokralle"
+		),
+		"rus" => array(
+			"Продажа",
+			"Сдам в аренду"
 		)
 	);
 ?>
@@ -210,8 +238,8 @@
 						obj_info: "<?php echo $infowindow_fields[$Lang]["address"]; ?>: "+geocode_results[h][i][j][1].street
 						+" "+geocode_results[h][i][j][1].house_no
 						+", "+geocode_results[h][i][j][1].city
-						+"<br><?php echo $infowindow_fields[$Lang]["price"]; ?>: "+geocode_results[h][i][j][1].price+"€"
-						+"<br><?php echo $infowindow_fields[$Lang]["link"]; ?>: <a href='http://www.lvm.ee/?op=body&zid="+geocode_results[h][i][j][0]+"&id=63&showLong=1'>Link</a>"
+						+"<br><?php echo $infowindow_fields[$Lang]["price"]; ?>: "+geocode_results[h][i][j][1].price+" €"
+						+"<br><?php echo $infowindow_fields[$Lang]["link"]; ?>: <a href='http://www.lvm.ee/?op=body&zid="+geocode_results[h][i][j][0]+"&id=63&showLong=1' target='_blank'>"+geocode_results[h][i][j][0]+"</a>"
 						+"<br><?php echo $infowindow_fields[$Lang]["additional_info"]; ?>: "+geocode_results[h][i][j][1].additional_info,
 						icon: markerImage
 					});
@@ -336,8 +364,8 @@
 <body>
 	<div id="tabs" style="width: 75%; font-size: 0.7em;">
 		<ul>
-			<li><a href="#tabs-1">Müük</a></li>
-			<li><a href="#tabs-2">Üür</a></li>
+			<li><a href="#tabs-1"><?php echo $transaction_type[$Lang][0]; ?></a></li>
+			<li><a href="#tabs-2"><?php echo $transaction_type[$Lang][1]; ?></a></li>
 		</ul>
 		<div id="tabs-1">
 			<form id="sale-form" name="saleproperties" action="">
@@ -358,28 +386,30 @@
 						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
 						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
-						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)" value="Sea kõik"><br>
+						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)"
+						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" />Garaažid<br>
+						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td>
-						<input type=button name="clear" onclick="clearAll(document.saleproperties.saleproperty)" value="Puhasta kõik"><br>
+						<input type=button name="clear" onclick="clearAll(document.saleproperties.saleproperty)"
+						       value="<?php echo $obj_type_string_pool[$Lang][11]; ?>"><br>
 						</td>
 					</tr>
 				</table>
@@ -404,28 +434,30 @@
 						<td><input type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
 						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
-						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)" value="Sea kõik"><br>
+						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)"
+						       value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
 						</td>
 						</tr>
 						<tr>
 						<td><input type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
-						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
-						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" />Garaažid<br>
+						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
 						</td>
 						<td>
-						<input type=button name="clear" onclick="clearAll(document.rentproperties.rentproperty)" value="Puhasta kõik"><br>
+						<input type=button name="clear" onclick="clearAll(document.rentproperties.rentproperty)"
+						       value="<?php echo $obj_type_string_pool[$Lang][11]; ?>"><br>
 						</td>
 					</tr>
 				</table>
