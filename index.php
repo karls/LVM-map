@@ -1,7 +1,7 @@
 <?php
 	session_start();
 	session_register("Lang");
-	$Lang = "eng";
+	$Lang = "est";
 	header('Content-type: text/html; charset=utf-8');
 	$data = file_get_contents("final_data.$Lang.json");
 	
@@ -137,6 +137,10 @@
 		text-decoration: underline;
 	}
 	
+	form {
+		margin: 0;
+	}
+	
 	#map_canvas {
 		margin-top: 5px;
 		height: 100%;
@@ -178,29 +182,31 @@
 						<td><input type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
 						<img src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
-						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
-						</td>
-						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)"
-						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
-						</td>
 						</tr>
 						<tr>
-						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
-						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
+						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
 						</td>
 						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
 						<img src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
-						<img src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
+						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
+						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						</td>
+						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
+						<img src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						</td>
+						</tr>
+						<tr>
+						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
+						<img src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td>
 						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
 						<img src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
-						<img src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)"
+						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
 						</td>
 						<td>
 						<input type=button name="clear" onclick="clearAll(document.saleproperties.saleproperty)"
