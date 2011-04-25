@@ -124,6 +124,7 @@
 		if ($lang == "rus" && $obj_type == "Участок<br>земли")
 			$obj_type = "Участокземли";
 		
+		$no_coords = 0;
 		// For each row in a rowset (property type)
 		foreach ($rowset->ROW as $row)
 		{
@@ -163,9 +164,12 @@
 				// this to get lat-lon from Maaamet
 				array_push($coordinates, (string)$coords);
 			}
+			else
+				$no_coords++;
 		}// foreach
 	}// foreach
 	dbg("Done building the array\n");
+	dbg("Number of objects with no coordinates: $no_coords\n");
 	dbg("---\n");
 	
 	// This is just so that we dump a string -- walk over every coordinate tuple
