@@ -10,6 +10,8 @@
 	 */
 	
 	// get the command line option for the language to get
+	if (!isset($_SERVER["argv"][1]))
+		die("No language provided.\n");
 	$lang = $_SERVER["argv"][1];
 	
 	
@@ -214,7 +216,7 @@
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $postdata);
 	$page = curl_exec($ch);
 	curl_close($ch);
-	dbg("Pushing donw\n");
+	dbg("Pushing done\n");
 	dbg("---\n");
 	
 	dbg("Pulling converted coordinates\n");
