@@ -10,10 +10,23 @@
 	 * @todo: add license
 	 */
 	
-	// get the command line option for the language to get
-	if (!isset($_SERVER["argv"][1]))
-		die("No language provided.\n");
-	$lang = $_SERVER["argv"][1];
+	// Sanity check -- if less than 2 arguments, something's wrong
+	if (count($_SERVER["argv"]) < 3)
+	{
+		echo "ERROR: Too few arguments given\n";
+		echo "\n";
+		print_help();
+		die();
+	}
+	
+	
+	// /path/to/[est|eng|fin|rus].xml contains data from city24 in that language
+	$xml_file = $_SERVER["argv"][1];
+	if (!is_readable($xml_file))
+		die("ERROR: The provided file ($xml_file) is not readable.\n");
+	$xml_data = file_get_contents($xml_file);
+	$lang = $_SERVER["argv"][2];
+	
 	
 	
 	/**
@@ -26,18 +39,26 @@
 			echo($str);
 	}
 	
+	/**
+	 * Prints help
+	 */
+	function print_help()
+	{
+		echo "Usage: compile_object_data.php </path/to/xmlfile> <est|eng|rus|fin> [0|1]\n";
+		echo "This program requires at least 2 command-line arguments:\n";
+		echo "	1) A path to the xml file\n";
+		echo "	2) A language indentifier - est, eng, fin or rus\n";
+		echo "	3) (optional) Turn debugging on (1) or off (0). Default: off.\n";
+	}
+	
 	
 	// Define some constants, pretty self-explanatory
 	define("MAAAMET_URL", "http://www.maaamet.ee/rr/gauss/");
 	define("COORDS_DUMP_FILE", "coords_dump.$lang.txt");
 	define("COORDS_LAT_LON", "latlon_coords.$lang.txt");
 	define("DATA_FILE", "final_data.$lang.json");
-	define("DEBUG", (isset($_SERVER["argv"][2]) ? intval($_SERVER["argv"][2]) : 0));
+	define("DEBUG", isset($_SERVER["argv"][3]) ? intval($_SERVER["argv"][3]) : 0);
 	
-	
-	// [est|eng|fin|rus].xml contains data from city24 in that language
-	$xml_file = "$lang.xml";
-	$xml_data = file_get_contents($xml_file);
 	
 	
 	// regular expressions for parsing different xml files. ugly, but works.
@@ -185,6 +206,8 @@
 	// Dump the coordinates into a file for later use in getting the lat and
 	// long from maaamet
 	dbg("Dumping coordinates from the xml file\n");
+	if (!is_writable(COORDS_DUMP_FILE))
+		die("ERROR: The coordinates file (".COORDS_DUMP_FILE.") is not writable.\n");
 	$fp = fopen(COORDS_DUMP_FILE, 'w');
 	fwrite($fp, (string)$coords_out);
 	fclose($fp);
@@ -238,6 +261,8 @@
 	
 	// write it to disk
 	dbg("Dumping converted coordinates\n");
+	if (!is_writable(COORDS_LAT_LON))
+		die("ERROR: The coordinates file (".COORDS_LAT_LON.") is not writable.\n");
 	$fp = fopen(COORDS_LAT_LON, 'w');
 	fwrite($fp, $latlong_coords);
 	fclose($fp);
@@ -342,6 +367,8 @@
 	
 	dbg("Dumping final data\n");
 	$final_data = json_encode($final_data);
+	if (!is_writable(DATA_FILE))
+		die("ERROR: The output data file (".DATA_FILE.") is not writable.\n");
 	$fp = fopen(DATA_FILE, 'w');
 	if (fwrite($fp, $final_data))
 		dbg("Success\n");
