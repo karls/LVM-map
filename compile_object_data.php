@@ -7,7 +7,7 @@
 	 * @author Karl Sutt karl@sutt.ee
 	 * @copyright Karl Sutt 2011
 	 * @version 1.0
-	 * @todo: add license
+	 * @license See license.txt
 	 */
 	
 	// Sanity check -- if less than 2 arguments, something's wrong
