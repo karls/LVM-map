@@ -296,40 +296,40 @@ function initialize() {
 			<form id="sale-form" name="saleproperties" action="">
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
-						<td><input type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
+						<td><input id="sale-0" type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
+						<label for="sale-0"><img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?></label><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="1" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
+						<td><input id="sale-1" type=checkbox name="saleproperty" value="1" onclick="process(this)" checked="checked">
+						<label for="sale-1"><img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="2" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
+						<td><input id="sale-2" type=checkbox name="saleproperty" value="2" onclick="process(this)" checked="checked">
+						<label for="sale-2"><img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
-						<td><input type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
-						</td>
-						</tr>
-						<tr>
-						<td><input type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
-						</td>
-						<td><input type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
-						</td>
-						<td><input type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
-						</td>
-						<td><input type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<td><input id="sale-3" type=checkbox name="saleproperty" value="3" onclick="process(this)" checked="checked">
+						<label for="sale-3"><img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						</tr>
 						<tr>
-						<td><input type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
+						<td><input id="sale-8" type=checkbox name="saleproperty" value="8" onclick="process(this)" checked="checked">
+						<label for="sale-8"><img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
+						</td>
+						<td><input id="sale-7" type=checkbox name="saleproperty" value="7" onclick="process(this)" checked="checked">
+						<label for="sale-7"><img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						</td>
+						<td><input id="sale-5" type=checkbox name="saleproperty" value="5" onclick="process(this)" checked="checked">
+						<label for="sale-5"><img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						</td>
+						<td><input id="sale-6" type=checkbox name="saleproperty" value="6" onclick="process(this)" checked="checked">
+						<label for="sale-6"><img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						</td>
+						</tr>
+						<tr>
+						<td><input id="sale-4" type=checkbox name="saleproperty" value="4" onclick="process(this)" checked="checked">
+						<label for="sale-4"><img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td>
-						<input type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
+						<input id="sale-9" type=checkbox name="saleproperty" value="9" onclick="process(this)" checked="checked">
+						<label for="sale-9"><img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.saleproperties.saleproperty)"
 						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
@@ -346,40 +346,40 @@ function initialize() {
 			<form id="rent-form" name="rentproperties" action="">
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
-						<td><input type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?><br>
+						<td><input id="rent-0" type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
+						<label for="rent-0"><img height="15" src="markers/0.png" /><?php echo $obj_type_string_pool[$Lang][0]; ?></label><br>
 						</td>
-						<td><input type=checkbox name="rentproperty" value="1" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
+						<td><input id="rent-1" type=checkbox name="rentproperty" value="1" onclick="process(this)" checked="checked">
+						<label for="rent-1"><img height="15" src="markers/1.png" /><?php echo $obj_type_string_pool[$Lang][1]; ?><br>
 						</td>
-						<td><input type=checkbox name="rentproperty" value="2" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
+						<td><input id="rent-2" type=checkbox name="rentproperty" value="2" onclick="process(this)" checked="checked">
+						<label for="rent-2"><img height="15" src="markers/2.png" /><?php echo $obj_type_string_pool[$Lang][2]; ?><br>
 						</td>
-						<td><input type=checkbox name="rentproperty" value="3" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
-						</td>
-						</tr>
-						<tr>
-						<td><input type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
-						</td>
-						<td><input type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
-						</td>
-						<td><input type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
-						</td>
-						<td><input type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						<td><input id="rent-3" type=checkbox name="rentproperty" value="3" onclick="process(this)" checked="checked">
+						<label for="rent-3"><img height="15" src="markers/3.png" /><?php echo $obj_type_string_pool[$Lang][3]; ?><br>
 						</td>
 						</tr>
 						<tr>
-						<td><input type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
+						<td><input id="rent-8" type=checkbox name="rentproperty" value="8" onclick="process(this)" checked="checked">
+						<label for="rent-8"><img height="15" src="markers/8.png" /><?php echo $obj_type_string_pool[$Lang][8]; ?><br>
+						</td>
+						<td><input id="rent-7" type=checkbox name="rentproperty" value="7" onclick="process(this)" checked="checked">
+						<label for="rent-7"><img height="15" src="markers/7.png" /><?php echo $obj_type_string_pool[$Lang][7]; ?><br>
+						</td>
+						<td><input id="rent-5" type=checkbox name="rentproperty" value="5" onclick="process(this)" checked="checked">
+						<label for="rent-5"><img height="15" src="markers/5.png" /><?php echo $obj_type_string_pool[$Lang][5]; ?><br>
+						</td>
+						<td><input id="rent-6" type=checkbox name="rentproperty" value="6" onclick="process(this)" checked="checked">
+						<label for="rent-6"><img height="15" src="markers/6.png" /><?php echo $obj_type_string_pool[$Lang][6]; ?><br>
+						</td>
+						</tr>
+						<tr>
+						<td><input id="rent-4" type=checkbox name="rentproperty" value="4" onclick="process(this)" checked="checked">
+						<label for="rent-4"><img height="15" src="markers/4.png" /><?php echo $obj_type_string_pool[$Lang][4]; ?><br>
 						</td>
 						<td>
-						<input type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
-						<img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
+						<input id="rent-9" type=checkbox name="rentproperty" value="9" onclick="process(this)" checked="checked">
+						<label for="rent-9"><img height="15" src="markers/9.png" /><?php echo $obj_type_string_pool[$Lang][9]; ?><br>
 						</td>
 						<td><input type=button name="set" onclick="setAll(document.rentproperties.rentproperty)"
 						           value="<?php echo $obj_type_string_pool[$Lang][10]; ?>"><br>
