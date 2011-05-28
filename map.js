@@ -42,8 +42,10 @@ var markers = [
 var markers_flattened = [[],[]];
 
 // Auxiliary arrays of sale and rent objects
+/*
 var sale_objects;
 var rent_objects;
+*/
 
 function process(box)
 {
