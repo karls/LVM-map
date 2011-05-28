@@ -1,0 +1,8 @@
+LVM Map
+Converts XML data from City24 into JSON format for rendering properties on
+Google Maps using the Google Maps API.
+Copyright (C) 2011 Karl Sutt
+
+This program comes with ABSOLUTELY NO WARRANTY.
+This software is NOT for modification, redistribution or commercial purposes.
+If you have any questions about this software, contact the author karl@sutt.ee
