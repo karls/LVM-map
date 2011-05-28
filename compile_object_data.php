@@ -1,6 +1,7 @@
+#!/usr/bin/env php5
 <?php
 	/**
-	 * Generates a file named final_data.[est|eng|fin|rus].json which contains all
+	 * Generates a file named final_data.{est|eng|fin|rus}.json which contains all
 	 * the information needed for the client-side of the map.
 	 *
 	 * @author Karl Sutt karl@sutt.ee
@@ -31,7 +32,7 @@
 	define("COORDS_DUMP_FILE", "coords_dump.$lang.txt");
 	define("COORDS_LAT_LON", "latlon_coords.$lang.txt");
 	define("DATA_FILE", "final_data.$lang.json");
-	define("DEBUG", 1);
+	define("DEBUG", (isset($_SERVER["argv"][2]) ? intval($_SERVER["argv"][2]) : 0));
 	
 	
 	// [est|eng|fin|rus].xml contains data from city24 in that language
