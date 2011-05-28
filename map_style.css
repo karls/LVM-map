@@ -1,0 +1,37 @@
+	html {
+		height: 100%;
+		font-size: 16px;
+		font-family: Arial, Helvetica, Verdana;
+	}
+	
+	body {
+		height: 100%;
+		margin: 0px;
+		padding: 0px;
+	}
+	
+	#map_canvas p.objinfo {
+		margin: 0;
+		font-size: 0.8em;
+	}
+	
+	#map_canvas p.objinfo a {
+		color: #F18E00;
+		text-decoration: none;
+	}
+	
+	#map_canvas p.objinfo a:hover {
+		text-decoration: underline;
+	}
+	
+	form.objects_form {
+		margin: 0;
+	}
+	a.map_tab {
+		padding: 0.5em 1.4em;
+	}
+	
+	#map_canvas {
+		margin-top: 5px;
+		height: 100%;
+	}
