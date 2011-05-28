@@ -1,54 +1,31 @@
 <?php
 	include_once('string_pool.php');
+	
+	/*
+	 * The language selection relies on the $Lang variable, which
+	 * should be present in the OKIA's implementation of the website at all times.
+	 * So, regarding the above, it might (should) be necessary to remove/comment out some
+	 * stuff below, i.e. session_start(), session_register() and so on.
+	 * Basically, the map only needs the value stored in $Lang, as per OKIA's
+	 * code.
+	 */
 	@session_start();
 	@session_register("Lang");
 	$Lang = isset($_GET["setlang"]) ? $_GET["setlang"] : "est";
+	
+	
+	
+	// That _SHOULD_ be all that's needed
 	header('Content-type: text/html; charset=utf-8');
+	if (!is_readable("final_data.$Lang.json"))
+		die("The object data file is not readable.\n");
 	$data = file_get_contents("final_data.$Lang.json");
 ?>
 <html>
 <head>
 <title>LVM map</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-<style type="text/css">
-	html {
-		height: 100%;
-		font-size: 16px;
-		font-family: Arial, Helvetica, Verdana;
-	}
-	
-	body {
-		height: 100%;
-		margin: 0px;
-		padding: 0px;
-	}
-	
-	p.objinfo {
-		margin: 0;
-		font-size: 0.8em;
-	}
-	
-	p.objinfo a {
-		color: #F18E00;
-		text-decoration: none;
-	}
-	
-	p.objinfo a:hover {
-		text-decoration: underline;
-	}
-	
-	form {
-		margin: 0;
-	}
-	#tabs-1, #tabs-2 {
-		padding: 0.5em 1.4em;
-	}
-	
-	#map_canvas {
-		margin-top: 5px;
-		height: 100%;
-	}
-</style>
+<link rel="stylesheet" type="text/css" href="map_style.css" />
 <link rel="stylesheet" type="text/css" href="jquery-ui/css/smoothness/jquery-ui-1.8.11.custom.css" />
 <script type="text/javascript" src="jquery-ui/js/jquery-1.5.1.min.js"></script>
 <script type="text/javascript" src="jquery-ui/js/jquery-ui-1.8.11.custom.min.js"></script>
@@ -66,8 +43,10 @@ function initialize() {
 	
 	// Get the object data
 	// Split it into sale and rent data
+	/*
 	sale_objects = geocode_results[0];
 	rent_objects = geocode_results[1];
+	*/
 	
 	// Create the options object for the map
 	var myOptions = {
@@ -189,11 +168,11 @@ function initialize() {
 <body>
 	<div id="tabs" style="width: 666px; font-size: 0.7em;">
 		<ul>
-			<li><a href="#tabs-1"><?php echo $transaction_type[$Lang][0]; ?></a></li>
-			<li><a href="#tabs-2"><?php echo $transaction_type[$Lang][1]; ?></a></li>
+			<li><a class="map_tab" href="#tabs-1"><?php echo $transaction_type[$Lang][0]; ?></a></li>
+			<li><a class="map_tab" href="#tabs-2"><?php echo $transaction_type[$Lang][1]; ?></a></li>
 		</ul>
 		<div id="tabs-1">
-			<form id="sale-form" name="saleproperties" action="">
+			<form id="sale-form" class="objects-form" name="saleproperties" action="">
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input id="sale-0" type=checkbox name="saleproperty" value="0" onclick="process(this)" checked="checked">
@@ -243,7 +222,7 @@ function initialize() {
 			</form>
 		</div>
 		<div id="tabs-2">
-			<form id="rent-form" name="rentproperties" action="">
+			<form id="rent-form" class="objects-form" name="rentproperties" action="">
 				<table id="objects-selection" style="font-size: 1em;">
 					<tr>
 						<td><input id="rent-0" type=checkbox name="rentproperty" value="0" onclick="process(this)" checked="checked">
@@ -294,9 +273,12 @@ function initialize() {
 	</div>
 	</div>
   <div id="map_canvas" style="width:666px; height:600px"></div>
+	<!--
+	TEST
 	<a href="?setlang=est">est</a>
 	<a href="?setlang=eng">eng</a>
 	<a href="?setlang=fin">fin</a>
 	<a href="?setlang=rus">rus</a>
+	-->
 </body>
 </html>
