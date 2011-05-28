@@ -1,4 +1,15 @@
 <?php
+	/**
+	 * Front end to the whole application.
+	 * Takes JSON encoded data and shows it on the map.
+	 *
+	 * @author Karl Sutt karl@sutt.ee
+	 * @copyright Karl Sutt 2011
+	 * @version 1.0
+	 * @license See license.txt
+	 */
+	
+	
 	include_once('string_pool.php');
 	
 	/*
