@@ -206,9 +206,10 @@
 	// Dump the coordinates into a file for later use in getting the lat and
 	// long from maaamet
 	dbg("Dumping coordinates from the xml file\n");
+	$fp = fopen(COORDS_DUMP_FILE, 'w') or
+		dir("ERROR: Could not open file (".COORDS_DUMP_FILE.").\n");
 	if (!is_writable(COORDS_DUMP_FILE))
 		die("ERROR: The coordinates file (".COORDS_DUMP_FILE.") is not writable.\n");
-	$fp = fopen(COORDS_DUMP_FILE, 'w');
 	fwrite($fp, (string)$coords_out);
 	fclose($fp);
 	unset($fp);
@@ -247,6 +248,7 @@
 	// get the filename containing the converted coordinates
 	preg_match("/files\/[a-zA-Z0-9]+\.txt/", $page, $matches);
 	$latlong_file = $matches[0];
+	dbg("The file on Maaamet's server: $latlong_file\n");
 	
 	// now get the file from maaamet
 	$ch = curl_init();
@@ -261,10 +263,12 @@
 	
 	// write it to disk
 	dbg("Dumping converted coordinates\n");
+		
+	$fp = fopen(COORDS_LAT_LON, 'w') or
+		die("ERROR: Could not open file (".COORDS_LAT_LON.").\n");
+	fwrite($fp, $latlong_coords);
 	if (!is_writable(COORDS_LAT_LON))
 		die("ERROR: The coordinates file (".COORDS_LAT_LON.") is not writable.\n");
-	$fp = fopen(COORDS_LAT_LON, 'w');
-	fwrite($fp, $latlong_coords);
 	fclose($fp);
 	unset($fp);
 	dbg("Dumping done\n");
@@ -301,8 +305,13 @@
 		$lon_s = $lon_matches[0][3];
 		
 		// Convert to global coordinates
+		/*
 		$converted_lat = bcadd($lat_d, bcdiv($lat_m * 60 + $lat_s, 3600.0, $p), $p);
 		$converted_lon = bcadd($lon_d, bcdiv($lon_m * 60 + $lon_s, 3600.0, $p), $p);
+		*/
+		// Andero :: Server does not support bc so had to replace it
+		$converted_lat = number_format($lat_d + (($lat_m * 60 + $lat_s) / 3600.0), $p, '.', '');
+		$converted_lon = number_format($lon_d + (($lon_m * 60 + $lon_s) / 3600.0), $p, '.', '');
 		
 		// Add to the properties array
 		array_push($properties[$i][2], $converted_lat, $converted_lon);
@@ -367,9 +376,10 @@
 	
 	dbg("Dumping final data\n");
 	$final_data = json_encode($final_data);
+	$fp = fopen(DATA_FILE, 'w') or
+		die("ERROR: Could not open file (".DATA_FILE.").\n");
 	if (!is_writable(DATA_FILE))
 		die("ERROR: The output data file (".DATA_FILE.") is not writable.\n");
-	$fp = fopen(DATA_FILE, 'w');
 	if (fwrite($fp, $final_data))
 		dbg("Success\n");
 	fclose($fp);
