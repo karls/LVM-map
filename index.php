@@ -127,7 +127,13 @@ function initialize() {
 					+geocode_results[h][i][j][1].price+" €"
 					+"<br><b><?php echo $infowindow_fields[$Lang]['additional_info']; ?></b>: "
 					+geocode_results[h][i][j][1].additional_info
-					+"</p>",
+					+"<br>"+geocode_results[h][i][j][1].broker_name+", "
+					+geocode_results[h][i][j][1].broker_phone +", "
+					+"<a href=\"mailto:"+geocode_results[h][i][j][1].broker_email+ "?subject="
+					+geocode_results[h][i][j][1].street
+					+" "+geocode_results[h][i][j][1].house_no
+					+", "+geocode_results[h][i][j][1].city+"\">"
+					+geocode_results[h][i][j][1].broker_email+"</a></p>",
 					icon: markerImage
 				});
 				
