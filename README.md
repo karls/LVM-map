@@ -9,6 +9,7 @@ to use.
 
 #Pulling XML files from City24
 The XML files from City24 are pulled using these 4 cURL commands:
+
 * curl --user user:pass --output /path/to/est.xml https://maakler.city24.ee/broker/city24broker/xml?lang=EST
 * curl --user user:pass --output /path/to/eng.xml https://maakler.city24.ee/broker/city24broker/xml?lang=ENG
 * curl --user user:pass --output /path/to/fin.xml https://maakler.city24.ee/broker/city24broker/xml?lang=FIN
@@ -19,6 +20,7 @@ The XML files from City24 are pulled using these 4 cURL commands:
 To generate the corresponding JSON files for the front-end, run:
 ./compile\_object\_data.php </path/to/<est|eng|fin|rus>.xml> <est|eng|fin|rus> [0|1]
 E.g:
+
 * ./compile\_object\_data.php /home/karl/lvm/est.xml est
 * ./compile\_object\_data.php /home/karl/lvm/eng.xml eng
 * ./compile\_object\_data.php /home/karl/lvm/fin.xml fin
@@ -35,7 +37,7 @@ The map itself is in index.php. It relies on some Javascript files (namely,
 map.js, markerclusterer\_packed.js and jQuery libraries) and some CSS to put the
 data on the map and create the look-and-feel.
 
-######Note
+#Note
 Lots of hacks in this project, because I had no access apart from FTP (no SSH,
 no databases, nothing). There is some reverse-engineered stuff, some weird
 API hacks and so on.
