@@ -57,6 +57,7 @@
 	define("COORDS_DUMP_FILE", "coords_dump.$lang.txt");
 	define("COORDS_LAT_LON", "latlon_coords.$lang.txt");
 	define("DATA_FILE", "final_data.$lang.json");
+	define("CITY_ID_COORDS", "city_id_coords.$lang.json");
 	define("DEBUG", isset($_SERVER["argv"][3]) ? intval($_SERVER["argv"][3]) : 0);
 	
 	
@@ -122,6 +123,8 @@
 	$rowcount = 0;
 	$properties = array();
 	$coordinates = array();
+	// we also need city24 IDs mapped to global coords
+	$city_ids_to_coords = array();
 	
 	// Iterate over each rowset -- rowsets are types of different property
 	foreach ($xml->ROWSET as $rowset)
@@ -180,7 +183,10 @@
 													? "-1"
 													: "$row->KIRJELDUS_TOAD"),
 						"transaction_type" => $row->TEHING == $transactions[$lang] ? 0 : 1,
-						"additional_info" => "$row->LISAINFO_INFO"
+						"additional_info" => "$row->LISAINFO_INFO",
+						"broker_name" => "$row->MAAKLER_NIMI",
+						"broker_phone" => "$row->MAAKLER_TELEFON",
+						"broker_email" => "$row->MAAKLER_EMAIL"
 					),
 					array()
 				));
@@ -207,7 +213,7 @@
 	// long from maaamet
 	dbg("Dumping coordinates from the xml file\n");
 	$fp = fopen(COORDS_DUMP_FILE, 'w') or
-		dir("ERROR: Could not open file (".COORDS_DUMP_FILE.").\n");
+		die("ERROR: Could not open file (".COORDS_DUMP_FILE.").\n");
 	if (!is_writable(COORDS_DUMP_FILE))
 		die("ERROR: The coordinates file (".COORDS_DUMP_FILE.") is not writable.\n");
 	fwrite($fp, (string)$coords_out);
@@ -266,9 +272,9 @@
 		
 	$fp = fopen(COORDS_LAT_LON, 'w') or
 		die("ERROR: Could not open file (".COORDS_LAT_LON.").\n");
-	fwrite($fp, $latlong_coords);
 	if (!is_writable(COORDS_LAT_LON))
 		die("ERROR: The coordinates file (".COORDS_LAT_LON.") is not writable.\n");
+	fwrite($fp, $latlong_coords);
 	fclose($fp);
 	unset($fp);
 	dbg("Dumping done\n");
@@ -315,6 +321,10 @@
 		
 		// Add to the properties array
 		array_push($properties[$i][2], $converted_lat, $converted_lon);
+		
+		// create a mapping from city24 IDs to coordinates
+		$city_ids_to_coords[intval($properties[$i][0])] = array($converted_lat, $converted_lon);
+		
 		$i++;
 	}
 	dbg("Parsing done\n");
@@ -374,6 +384,16 @@
 	dbg("Conversion done\n");
 	dbg("---\n");
 	
+	dbg("Dumping mappings from City24 ID to coordinates\n");
+	$city_ids_to_coords_json = json_encode($city_ids_to_coords);
+	$fp = fopen(CITY_ID_COORDS, 'w') or
+		die("ERROR: Could not open file (".CITY_ID_COORDS.").\n");
+	if (!is_writable(CITY_ID_COORDS))
+		die("ERROR: The output file (".CITY_ID_COORDS.") is not writable.\n");
+	if (fwrite($fp, $city_ids_to_coords_json))
+		dbg("Success\n");
+	
+	dbg("---\n");
 	dbg("Dumping final data\n");
 	$final_data = json_encode($final_data);
 	$fp = fopen(DATA_FILE, 'w') or
