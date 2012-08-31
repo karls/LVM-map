@@ -366,6 +366,11 @@
 		// The object is an apartment
 		if ($object[1]["object_type"] == 0)
 		{
+			// if the object is an apartment and it's missing rooms, disregard it,
+			// it's garbage
+			if ($object[1]["num_rooms"] == -1)
+				continue;
+
 			// If less than 4 rooms, can do # of rooms - 1 as the index
 			if ($object[1]["num_rooms"] < 4)
 				array_push($final_data[$object[1]["transaction_type"]]
